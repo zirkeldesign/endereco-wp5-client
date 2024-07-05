@@ -1,0 +1,13 @@
+{
+    "name": "endereco/endereco-wp5-client",
+    "description": "Endereco WooCommerce and Wordpress Client for Addressvalidation",
+    "type": "wordpress-plugin",
+    "license": "ISC",
+    "authors": [
+        {
+            "name": "Ilja Weber",
+            "email": "ilja@endereco.de"
+        }
+    ],
+    "require": {}
+}
