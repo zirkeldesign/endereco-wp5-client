@@ -61,7 +61,12 @@ add_action( 'wp_head', 'ewp5c_add_config_to_header' );
 
 function ewp5c_is_whitelisted_page() {
     global $post;
-    $post_id = $post->ID;
+
+    if (! $post) {
+        return false;
+    }
+
+    $post_id = $post->ID ?? null;
     $whitelist = array_map('intval', explode(',', get_option('ewp5c_whitelisted_pages')));
 
     return in_array($post_id, $whitelist);
