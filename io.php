@@ -44,11 +44,33 @@ $http = array(
 );
 
 if ('POST' === $_SERVER['REQUEST_METHOD']) {
+    if (empty($_SERVER['HTTP_X_REMOTE_API_URL'])) {
+        http_response_code(400);
+        throw new Exception('Missing or blank remote API URL header.');
+    }
+    $remote_url = trim($_SERVER['HTTP_X_REMOTE_API_URL']);
+
+    // Protocol, path and query parameters are removed for the domain check.
+    $remote_domain = preg_replace('#^https?://#', '', $remote_url);
+    if ($remote_domain === null) {
+        header($http[400]);
+        throw new Exception('Invalid URL format.');
+    }
+    $remote_domain = explode('/', $remote_domain)[0];
+    $remote_domain = explode('?', $remote_domain)[0];
+    $remote_domain = trim(strtolower($remote_domain));
+
+    $allowed_remote_domain_pattern = '/^(([a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?\.)+)?endereco-service\.de$/';
+    if (!preg_match($allowed_remote_domain_pattern, $remote_domain)) {
+        header($http[400]);
+        throw new Exception('Invalid remote API url.');
+    }
+
     $agent_info  = trim($_SERVER['HTTP_X_AGENT']);
     $post_data   = json_decode(file_get_contents('php://input'), true);
     $api_key     = trim($_SERVER['HTTP_X_AUTH_KEY']);
     $data_string = json_encode($post_data);
-    $ch          = curl_init(trim($_SERVER['HTTP_X_REMOTE_API_URL']));
+    $ch          = curl_init($remote_url);
 
     if ($_SERVER['HTTP_X_TRANSACTION_ID']) {
         $tid = $_SERVER['HTTP_X_TRANSACTION_ID'];
